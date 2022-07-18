@@ -17,10 +17,15 @@ class Progam
         ThreadPool.SetMinThreads(1, 1);
         ThreadPool.SetMaxThreads(5, 5);
 
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
-            ThreadPool.QueueUserWorkItem((obj) => { while (true) { } });
+            Task t = new Task(() => { while (true) { } }, TaskCreationOptions.LongRunning);
+            t.Start();
         }
+        //for (int i = 0; i < 4; i++)
+        //{
+        //    ThreadPool.QueueUserWorkItem((obj) => { while (true) { } });
+        //}
 
         ThreadPool.QueueUserWorkItem(MainThread);
         

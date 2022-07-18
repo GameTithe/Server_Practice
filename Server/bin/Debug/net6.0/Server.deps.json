@@ -6,15 +6,15 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v6.0": {
-      "DummyClient/1.0.0": {
+      "Server/1.0.0": {
         "runtime": {
-          "DummyClient.dll": {}
+          "Server.dll": {}
         }
       }
     }
   },
   "libraries": {
-    "DummyClient/1.0.0": {
+    "Server/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
