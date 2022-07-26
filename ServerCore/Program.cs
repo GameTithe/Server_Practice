@@ -3,47 +3,35 @@
 
 class Progam
 {
-    static void MainThread(object state)
+    volatile static bool _stop = false;
+
+    static void ThreadMain()
     {
-        for (int i = 0; i  < 5; i++)
-            Console.WriteLine("Hello Thread!");
-    }
+        Console.WriteLine("쓰레드 시작!");
+
+        while(_stop == false)
+        {
+            //누군가가 stop 신호를 해주기를 기다린다
+        }
+
+        Console.WriteLine("쓰레드 종료!");
+    }   
 
     static void Main(string[] args)
     {
-        //commit
-        //background
-        //인력사무소
-        ThreadPool.SetMinThreads(1, 1);
-        ThreadPool.SetMaxThreads(5, 5);
+        Task t = new Task(ThreadMain);
+        t.Start();
 
-        for (int i = 0; i < 5; i++)
-        {
-            Task t = new Task(() => { while (true) { } }, TaskCreationOptions.LongRunning);
-            t.Start();
-        }
-        //for (int i = 0; i < 4; i++)
-        //{
-        //    ThreadPool.QueueUserWorkItem((obj) => { while (true) { } });
-        //}
+        Thread.Sleep(1000);
 
-        ThreadPool.QueueUserWorkItem(MainThread);
-        
-        //Thread는 갯수제한 X 하지만 많다고 좋은 것은 X 최악의 방법이 될 수 있다
-        //for (int i = 0; i < 1000; i++)
-        //{
-        //    Thread t = new Thread(MainThread);
-        //    //t.Name = "Test Thread";
-        //    t.IsBackground = true;
-        //    t.Start();
-        //}
-        //Console.WriteLine("Waiting for Thread!");
+        _stop = true;
 
-        //t.Join();
-        //Console.WriteLine("Hello Wolrd");
-        while (true)
-        {
+        Console.WriteLine("Stop 호출");
+        Console.WriteLine("종료 대기 중");
 
-        }
+        //Thread q ;  q.Join()  같은 의미
+        t.Wait();
+
+        Console.WriteLine("종료 성공");
     }
 }
