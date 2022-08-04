@@ -1,57 +1,49 @@
 ﻿class Progam
 {
-    // 메모리 배리어
-    // A) 코드 재배치 억제
-    // B) 가시성
-
-    // 1) Full Memory Barrier : (ASM MFENCE , C# Thread.MemoryBerrior)  : Store/ Load 둘 다 막는다 
-    // 2) Store Memory Barrier : (ASM SFENCE) : Store만 막는다
-    // 2) Load Memory Barrier : (ASM LFENCE) : Load만 막는다
-
-    static int x = 0;
-    static int y = 0;
-    static int r1 = 0;
-    static int r2 = 0;
+    static int number = 0;
 
     static void Thread_1()
     {
-        y = 1;
+        // atomic = 원자성
 
-        Thread.MemoryBarrier();
+        for (int i = 0; i < 100000; i++)
+        {
+            // All or Nothing  Interloacked들이 동시다발적으로 일어난다고해도 승자는 생긴다 
+            int afterValue = Interlocked.Increment(ref number);
+            /*
+            number++;
 
-        r1 = x;
+            int temp = number; // 0
+            temp += 1; // 1
+            number = temp; // 1
+            */
+
+        }
     }
-
     static void Thread_2()
     {
-        x = 1;
+        for (int i = 0; i < 100000; i++)
+        { 
+            Interlocked.Decrement(ref number);
+            /*
+            number--;
 
-        Thread.MemoryBarrier();
-
-        r2 = y;
-    }
-
+            int temp = number; // 0
+            temp += 1; // -1
+            number = temp; // -1
+            */
+        }
+    }   
     static void Main(string[] args)
     {
-        int count = 0;
-        while(true)
-        {
-            count++;
+        Task t1 = new Task(Thread_1);
+        Task t2 = new Task(Thread_2);
 
-            x = y = r1 = r2 = 0;
+        t1.Start();
+        t2.Start();
 
-            Task t1 = new Task(Thread_1);
-            Task t2 = new Task(Thread_2);
+        Task.WaitAll(t1, t2);
 
-            t1.Start();
-            t2.Start();
-
-            Task.WaitAll(t1, t2);
-
-            if (r1 == 0 && r2 == 0)
-                break;
-        }
-
-        Console.WriteLine($"{count}번 만에 빠져 나옴");
+        Console.WriteLine(number);
     }
 }
