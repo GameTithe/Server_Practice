@@ -1,6 +1,7 @@
 ﻿class Progam
 {
     static int number = 0;
+    static object _obj = new object();
 
     static void Thread_1()
     {
@@ -8,30 +9,40 @@
 
         for (int i = 0; i < 100000; i++)
         {
-            // All or Nothing  Interloacked들이 동시다발적으로 일어난다고해도 승자는 생긴다 
-            int afterValue = Interlocked.Increment(ref number);
-            /*
-            number++;
+            // 상호배제 Mutual Exclusive 
 
-            int temp = number; // 0
-            temp += 1; // 1
-            number = temp; // 1
-            */
+            lock(_obj)
+            {
+                number++;
+            }
+
+            //try
+            //{
+
+            //    Monitor.Enter(_obj); // 문을 잠구는 행위
+            //    number++;
+
+            //    return;
+            //}
+            //finally
+            //{
+            //    Monitor.Exit(_obj);
+                 
+            //}
 
         }
+        
     }
+
+    // 데드락 DeadLock
     static void Thread_2()
     {
         for (int i = 0; i < 100000; i++)
-        { 
-            Interlocked.Decrement(ref number);
-            /*
-            number--;
-
-            int temp = number; // 0
-            temp += 1; // -1
-            number = temp; // -1
-            */
+        {
+            lock(_obj)
+            {
+                number--;
+            }
         }
     }   
     static void Main(string[] args)
