@@ -1,21 +1,21 @@
 ﻿class SpinLock
 {
-    volatile bool _locked = false;
+    volatile int _locked = 0;
 
     public void Acquire()
     {
-        while(_locked)
+        while(true)
         {
-            // 잠김이 풀리기를 기다린다.
-        }
+            int original = Interlocked.Exchange(ref _locked, 1);
+            if (original == 0)
+                break;
 
-        // 내꺼!
-        _locked = true;
+        }
     }
 
     public void Release()
     {
-        _locked = false;
+        _locked = 0;
     }
 }
 
