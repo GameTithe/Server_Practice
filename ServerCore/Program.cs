@@ -1,72 +1,48 @@
-﻿class SessionManager
-{ 
-    static object _lock = new object();
-
-    public static void TestSession()
-    {
-        lock(_lock)
-        {
-
-        }
-    }
-
-    public static void Test()
-    {
-        lock(_lock)
-        {
-            UserManager.TestUser();
-        }
-    }
-}
-
-class UserManager
+﻿class SpinLock
 {
-    static object _lock = new object();
+    volatile bool _locked = false;
 
-    public static void Test()
+    public void Acquire()
     {
-        lock(_lock)
+        while(_locked)
         {
-            SessionManager.TestSession();
+            // 잠김이 풀리기를 기다린다.
         }
+
+        // 내꺼!
+        _locked = true;
     }
 
-    public static void TestUser()
-    { 
-        lock (_lock)
-        {
-            
-        }
+    public void Release()
+    {
+        _locked = false;
     }
 }
+
 class Progam
 {
-    static int number = 0;
-    static object _obj = new object();
+    static int _num = 0;
+    static SpinLock _lock = new SpinLock();
 
     static void Thread_1()
     {
-        // atomic = 원자성
-
-        for (int i = 0; i < 10000; i++)
+        for(int i = 0; i < 100000; i++)
         {
-            // 상호배제 Mutual Exclusive 
-
-            SessionManager.Test();
-            
+            _lock.Acquire();
+            _num++;
+            _lock.Release();
         }
-        
     }
 
-    // 데드락 DeadLock
     static void Thread_2()
     {
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < 100000; i++)
         {
-            UserManager.Test();
-            
+            _lock.Acquire();
+            _num--;
+            _lock.Release();
         }
-    }   
+    }
     static void Main(string[] args)
     {
         Task t1 = new Task(Thread_1);
@@ -77,6 +53,6 @@ class Progam
 
         Task.WaitAll(t1, t2);
 
-        Console.WriteLine(number);
+        Console.WriteLine(_num);
     }
 }
