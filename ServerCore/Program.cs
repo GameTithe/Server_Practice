@@ -4,12 +4,18 @@
 
     public void Acquire()
     {
-        while(true)
+        while (true)
         {
-            int original = Interlocked.Exchange(ref _locked, 1);
-            if (original == 0)
-                break;
+            //int original = Interlocked.Exchange(ref _locked, 1);
 
+            //if (original == 0)
+            //    return;
+
+            //CAS Compare-And-Swap
+            int expected = 0;
+            int desire = 1;
+            if( Interlocked.CompareExchange(ref _locked, desire , expected) == expected)
+                break;
         }
     }
 
@@ -26,26 +32,27 @@ class Progam
 
     static void Thread_1()
     {
-        for(int i = 0; i < 100000; i++)
+        for (int i = 0; i < 1000000; i++)
         {
             _lock.Acquire();
             _num++;
             _lock.Release();
-        }
-    }
 
+        }
+    }   
     static void Thread_2()
     {
-        for (int i = 0; i < 100000; i++)
+        for (int i = 0; i < 1000000; i++)
         {
             _lock.Acquire();
             _num--;
             _lock.Release();
+
         }
     }
     static void Main(string[] args)
     {
-        Task t1 = new Task(Thread_1);
+        Task t1 = new Task(Thread_1);   
         Task t2 = new Task(Thread_2);
 
         t1.Start();
