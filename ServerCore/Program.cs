@@ -2,43 +2,32 @@
 
 class Progam
 {
-    static volatile int count = 0;
-    static Lock _lock = new Lock();
-    
-    static void Main(string[] args)
+
+    static ThreadLocal<string> ThreadName = new ThreadLocal<string>(() => { return $"My name is {Thread.CurrentThread.ManagedThreadId}"; });
+    //static string ThreadName;
+
+    static void WhoAmI()
     {
-        Task t1 = new Task(delegate ()
+        bool repeat = ThreadName.IsValueCreated;
+        if(repeat)
         {
-            for (int i = 0; i < 10000; i++)
-            {
-                _lock.WriteLock();
-                count++;
-                _lock.WrtieUnlock();
-            }
+            Console.WriteLine(ThreadName.Value + "(repeat)");
         }
-        );
-
-        Task t2 = new Task(delegate ()
+        else
         {
-            for(int i = 0; i < 10000; i++)
-            {
-                _lock.WriteLock();
-                count--;
-                _lock.WrtieUnlock();
-
-            }
+            Console.WriteLine(ThreadName.Value);
         }
-        );
 
-
-        t1.Start();
-        t2.Start();
-
-
-        Task.WaitAll(t1, t2);
-
-        Console.WriteLine(count);
     }
 
+    static void Main(string[] args)
+    {
+        ThreadPool.SetMinThreads(1, 1);
+        ThreadPool.SetMaxThreads(3, 3);
 
+        Parallel.Invoke(WhoAmI, WhoAmI, WhoAmI, WhoAmI, WhoAmI, WhoAmI, WhoAmI);
+
+        ThreadName.Dispose();
+
+    }
 }

@@ -11,18 +11,17 @@ namespace ServerCore
 
     public class Lock
     {
+        // [ Unused(1) ] [ WriteThreadID(15)] [ReadCount(16)]
         const int EMPTY_FLAG = 0x00000000;
         const int WRITE_MASK = 0x7FFF0000;
-        const int READ_MASK = 0x0000FFFF;
+        const int READ_MASK = 0x0000FFFF;   
         const int MAX_SPIN_COUNT = 5000;
 
-        // [ Unused(1) ] [ WriteThreadID(15)] [ReadCount(16)]
-
         int _flag = EMPTY_FLAG;
-        int _writeCount = 0;    
+        int _writeCount = 0;
 
         public void WriteLock()
-        {
+        { 
             // 동일 쓰레드가 writelock을 이미 획득하고 있는 지 확인
             int lockThreadId = (_flag & WRITE_MASK) >> 16;
             if(Thread.CurrentThread.ManagedThreadId == lockThreadId)
@@ -48,7 +47,7 @@ namespace ServerCore
             }
         }
 
-        public void WrtieUnlock()
+        public void WriteUnlock()
         {
             int lockCount = --_writeCount;
             if(lockCount == 0)
