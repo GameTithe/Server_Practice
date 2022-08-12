@@ -3,29 +3,40 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
+class GameSession : Session
+{
+    public override void OnConnected(EndPoint endPoint)
+    {
+        Console.WriteLine($"On Connected : {endPoint}");
+
+        byte[] sendBuff = Encoding.UTF8.GetBytes($"Welecom to MMORPG Server");
+        Send(sendBuff);
+
+        Thread.Sleep(1000);
+
+        Disconnect();
+    }
+
+    public override void OnDisconnected(EndPoint endPoint)
+    {
+        Console.WriteLine($"On Disconnected : {endPoint}");
+    }
+
+    public override void OnRecv(ArraySegment<byte> buffer)
+    {
+        string recvData = Encoding.UTF8.GetString(buffer.Array, buffer.Offset, buffer.Count);
+        Console.WriteLine($"[From Client] : {recvData}");
+    }
+
+    public override void OnSend(int numOfBytes)
+    {
+        Console.WriteLine($"Transferred bytes {numOfBytes}");
+    }
+}
 class Progam
 {
     static Listener _listener = new Listener();
-
-    static void OnAccptHandler(Socket clientSocket)
-    {
-        try
-        {
-            Session session = new Session();
-            session.Start(clientSocket);
-
-            byte[] sendBuff = Encoding.UTF8.GetBytes($"Welecom to MMORPG Server");
-            session.Send(sendBuff);
-
-            Thread.Sleep(1000);
-
-            session.Disconnect();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.ToString());
-        }
-    }
+    
 
     static void Main(string[] args)
     {
@@ -37,7 +48,7 @@ class Progam
 
         // www.rookiss.com -> 123.123.123.12
 
-        _listener.Init(endPoint, OnAccptHandler);
+        _listener.Init(endPoint, () => { return new GameSession();  });
         Console.WriteLine("Listening...");
 
         
