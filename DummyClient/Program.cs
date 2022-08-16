@@ -11,12 +11,13 @@ class Program
             string host = Dns.GetHostName();
             IPHostEntry ipHost = Dns.GetHostEntry(host);
             IPAddress ipAddr = ipHost.AddressList[0];
+
             IPEndPoint endPoint = new IPEndPoint(ipAddr, 7777);
 
 
-           
+
             while (true)
-            {    
+            {
                 //휴대폰 설정
                 Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -25,9 +26,11 @@ class Program
                 Console.WriteLine($"Connected To {socket.RemoteEndPoint.ToString()}");
 
                 //보낸다
-                byte[] sendBuff = Encoding.UTF8.GetBytes("HelloWorld");
-                int sendBytes = socket.Send(sendBuff);
-
+                for (int i = 0; i < 5; i++)
+                {
+                    byte[] sendBuff = Encoding.UTF8.GetBytes($"HelloWorld {i}");
+                    int sendBytes = socket.Send(sendBuff);
+                }
                 //받는다
                 byte[] recvBuff = new byte[1024];
                 int recvBytes = socket.Receive(recvBuff);
@@ -40,7 +43,7 @@ class Program
 
                 Thread.Sleep(100);
 
-            }        
+            }
         }
         catch (Exception e)
         {
