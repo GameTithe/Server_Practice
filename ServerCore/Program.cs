@@ -4,21 +4,40 @@ using System.Text;
 
 class Program
 {
+    class GameSession : Session
+    {
+        public override void OnConnected(EndPoint endPoint)
+        {
+        }
+
+        public override void OnDisconnected(EndPoint endPoint)
+        {
+        }
+
+        public override void OnRecv(ArraySegment<byte> buffer)
+        {
+        }
+
+        public override void OnSend(int numOfBytes)
+        {
+        }
+    }
     static Listener _listener = new Listener();
+
     static void OnAcceptHandler(Socket clientSocket)
     {
         try
         {
-            Session session = new Session();
+            GameSession session = new GameSession();
             session.Start(clientSocket);
 
             byte[] sendBuff = Encoding.UTF8.GetBytes($"Welcome MMORPG!!");
-            clientSocket.Send(sendBuff);
+            
+            session.Send(sendBuff);
 
             Thread.Sleep(1000);
 
             session.Disconnect();
-
         }
         catch (Exception e)
         {

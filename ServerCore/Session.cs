@@ -1,28 +1,38 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
-class Session
+abstract class Session
 {
     Socket _socket;
     int _disconnected = 0;
 
     object _lock = new object();
     Queue<byte[]> _sendQueue = new Queue<byte[]>();
-    bool _pending = false;
+
     SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
+    SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
+
+    List<ArraySegment<byte>> _pendingList = new List<ArraySegment<byte>>();
+
+    public abstract void OnConnected(EndPoint endPoint);
+    public abstract void OnRecv(ArraySegment<byte> buffer);
+    public abstract void OnSend(int numOfBytes);
+    public abstract void OnDisconnected(EndPoint endPoint);
+
+
 
     public void Start(Socket socket)
     {
         _socket = socket;
 
-        SocketAsyncEventArgs recvArgs = new SocketAsyncEventArgs();
 
-        recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnRecvComplete);
+        _recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnRecvComplete);
         _sendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendCompleted);
 
-        recvArgs.SetBuffer(new byte[1024], 0, 1024);
+        _recvArgs.SetBuffer(new byte[1024], 0, 1024);
 
-        RegisterRecv(recvArgs);
+        RegisterRecv();
     }
 
     public void Send(byte[] sendBuff)
@@ -31,7 +41,7 @@ class Session
         {
             _sendQueue.Enqueue(sendBuff);
 
-            if (_pending == false)
+            if (_pendingList.Count == 0)
                 RegisterSend();
         }
     }
@@ -45,11 +55,16 @@ class Session
 
     #region 네트워크 통신
     void RegisterSend()
-    {
-        _pending = true;
+    { 
+        _pendingList.Clear();
 
-        byte[] buff = _sendQueue.Dequeue();
-        _sendArgs.SetBuffer(buff, 0, buff.Length);
+        while (_sendQueue.Count > 0)
+        {
+            byte[] buff = _sendQueue.Dequeue();
+            _pendingList.Add(new ArraySegment<byte>(buff, 0, buff.Length));
+        }
+
+        _sendArgs.BufferList = _pendingList;
 
         bool pending = _socket.SendAsync(_sendArgs);
         if (pending == false)
@@ -63,12 +78,14 @@ class Session
             {
                 try
                 {
+                    _sendArgs.BufferList = null;
+                    _pendingList.Clear();
+
+                    Console.WriteLine($"Transfferd bytes : {_sendArgs.BytesTransferred}");
+
                     if (_sendQueue.Count > 0)
                         RegisterSend();
-                    
-                    else
-                        _pending = false;
-                    
+
                 }
                 catch (Exception e)
                 {
@@ -82,11 +99,11 @@ class Session
             }
         }
     }
-    void RegisterRecv(SocketAsyncEventArgs args)
+    void RegisterRecv()
     {
-        bool pending = _socket.ReceiveAsync(args);
+        bool pending = _socket.ReceiveAsync(_recvArgs);
         if (pending == false)
-            OnRecvComplete(null, args);
+            OnRecvComplete(null, _recvArgs);
     }
 
     void OnRecvComplete(object sender, SocketAsyncEventArgs args)
@@ -98,7 +115,8 @@ class Session
             {
                 string recvData = Encoding.UTF8.GetString(args.Buffer, args.Offset, args.BytesTransferred);
                 Console.WriteLine($" [From Client] : {recvData} ");
-                RegisterRecv(args);
+
+                RegisterRecv();
             }
             catch (Exception e)
             {
