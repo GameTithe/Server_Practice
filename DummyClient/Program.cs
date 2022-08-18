@@ -31,6 +31,7 @@ class Program
                     byte[] sendBuff = Encoding.UTF8.GetBytes($"HelloWorld {i}");
                     int sendBytes = socket.Send(sendBuff);
                 }
+
                 //받는다
                 byte[] recvBuff = new byte[1024];
                 int recvBytes = socket.Receive(recvBuff);

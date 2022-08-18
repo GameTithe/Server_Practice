@@ -2,48 +2,46 @@
 using System.Net.Sockets;
 using System.Text;
 
+class GameSession : Session
+{
+    public override void OnConnected(EndPoint endPoint)
+    {
+        Console.WriteLine($"OnConnected : {endPoint}");
+
+        byte[] sendBuff = Encoding.UTF8.GetBytes($"Welcome MMORPG!!");
+        Send(sendBuff);
+
+        Thread.Sleep(1000);
+
+        Disconnect();
+
+
+    }
+
+    public override void OnDisconnected(EndPoint endPoint)
+    {
+        Console.WriteLine($"OnDisconnecrted : {endPoint}");
+    }
+
+    public override void OnRecv(ArraySegment<byte> buffer)
+    {
+        string recvData = Encoding.UTF8.GetString(buffer.Array, buffer.Offset, buffer.Count);
+        Console.WriteLine($" [From Client] : {recvData} ");
+
+    }
+
+    public override void OnSend(int numOfBytes)
+    {
+        Console.WriteLine($"Transfferd bytes : {numOfBytes}");
+
+    }
+}
+
 class Program
 {
-    class GameSession : Session
-    {
-        public override void OnConnected(EndPoint endPoint)
-        {
-        }
-
-        public override void OnDisconnected(EndPoint endPoint)
-        {
-        }
-
-        public override void OnRecv(ArraySegment<byte> buffer)
-        {
-        }
-
-        public override void OnSend(int numOfBytes)
-        {
-        }
-    }
+    
     static Listener _listener = new Listener();
 
-    static void OnAcceptHandler(Socket clientSocket)
-    {
-        try
-        {
-            GameSession session = new GameSession();
-            session.Start(clientSocket);
-
-            byte[] sendBuff = Encoding.UTF8.GetBytes($"Welcome MMORPG!!");
-            
-            session.Send(sendBuff);
-
-            Thread.Sleep(1000);
-
-            session.Disconnect();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Server Error : {e.ToString()}");
-        }
-    }
     static void Main(string[] Args)
     {
         // DNS (Domain Name System)
@@ -54,7 +52,8 @@ class Program
 
         // 문지기
 
-        _listener.Init(endPoint, OnAcceptHandler);
+        _listener.Init(endPoint, () => { return new GameSession(); });
+
         Console.WriteLine("Listening...");
 
         while (true)

@@ -49,6 +49,9 @@ abstract class Session
     {
         if (Interlocked.Exchange(ref _disconnected, 1) == 1)
             return;
+
+        OnDisconnected(_socket.RemoteEndPoint);
+
         _socket.Shutdown(SocketShutdown.Both);
         _socket.Close();
     }
@@ -69,6 +72,7 @@ abstract class Session
         bool pending = _socket.SendAsync(_sendArgs);
         if (pending == false)
             OnSendCompleted(null, _sendArgs);
+
     }
     void OnSendCompleted(object sender, SocketAsyncEventArgs args)
     {
@@ -81,7 +85,8 @@ abstract class Session
                     _sendArgs.BufferList = null;
                     _pendingList.Clear();
 
-                    Console.WriteLine($"Transfferd bytes : {_sendArgs.BytesTransferred}");
+                    OnSend(_sendArgs.BytesTransferred);
+                    //Console.WriteLine($"Transfferd bytes : {_sendArgs.BytesTransferred}");
 
                     if (_sendQueue.Count > 0)
                         RegisterSend();
@@ -102,6 +107,7 @@ abstract class Session
     void RegisterRecv()
     {
         bool pending = _socket.ReceiveAsync(_recvArgs);
+
         if (pending == false)
             OnRecvComplete(null, _recvArgs);
     }
@@ -110,11 +116,11 @@ abstract class Session
     {
         if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
         {
-            //TODO
             try
             {
-                string recvData = Encoding.UTF8.GetString(args.Buffer, args.Offset, args.BytesTransferred);
-                Console.WriteLine($" [From Client] : {recvData} ");
+                OnRecv(new ArraySegment<byte>(args.Buffer, args.Offset, args.BytesTransferred));
+                //string recvData = Encoding.UTF8.GetString(args.Buffer, args.Offset, args.BytesTransferred);
+                //Console.WriteLine($" [From Client] : {recvData} ");
 
                 RegisterRecv();
             }
