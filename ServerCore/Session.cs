@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-abstract class Session
+public abstract class Session
 {
     Socket _socket;
     int _disconnected = 0;

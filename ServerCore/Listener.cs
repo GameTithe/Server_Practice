@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 
-class Listener
+public class Listener
 {
     Socket _listenSocket;
     Func<Session> _sessionFactory;
