@@ -2,36 +2,43 @@
 using System.Net.Sockets;
 using System.Text;
 using ServerCore;
-class Knight
+class Packet
 {
-    public int hp;
-    public int attack;
+    public ushort size;
+    public ushort packetId;
+
 }
-class GameSession : Session
+class GameSession : PacketSession   
 {
     public override void OnConnected(EndPoint endPoint)
     {
         Console.WriteLine($"OnConnected : {endPoint}");
 
-        Knight knight = new Knight() { hp = 100, attack = 10 };
+        //Packet packet = new Packet() { size = 4, packetId = 7 };
 
 
-        ArraySegment<byte> openSegment = SendBufferHelper.Open(4096);
+        //ArraySegment<byte> openSegment = SendBufferHelper.Open(4096);
 
-        byte[] buffer = BitConverter.GetBytes(knight.hp);
-        byte[] buffer2 = BitConverter.GetBytes(knight.attack);
-        Array.Copy(buffer, 0, openSegment.Array, openSegment.Offset, buffer.Length);
-        Array.Copy(buffer2, 0, openSegment.Array, openSegment.Offset + buffer.Length, buffer2.Length);
+        //byte[] buffer = BitConverter.GetBytes(packet.size);
+        //byte[] buffer2 = BitConverter.GetBytes(packet.packetId);
+        //Array.Copy(buffer, 0, openSegment.Array, openSegment.Offset, buffer.Length);
+        //Array.Copy(buffer2, 0, openSegment.Array, openSegment.Offset + buffer.Length, buffer2.Length);
 
-        ArraySegment<byte> sendBuffer = SendBufferHelper.Close(buffer.Length + buffer2.Length);
+        //ArraySegment<byte> sendBuffer = SendBufferHelper.Close(buffer.Length + buffer2.Length);
+        //Send(sendBuffer);
 
-
-
-        Send(sendBuffer);
-        Thread.Sleep(1000);
+        Thread.Sleep(5000);
         Disconnect();
 
 
+    }
+
+    public override void OnRecvPacket(ArraySegment<byte> buffer)
+    {
+        ushort size = BitConverter.ToUInt16(buffer.Array, buffer.Offset);
+        ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + 2);
+
+        Console.WriteLine($"RecvPacketId  : {id} , Size = {size}");
     }
 
     public override void OnDisconnected(EndPoint endPoint)
@@ -39,16 +46,7 @@ class GameSession : Session
         Console.WriteLine($"OnDisconnecrted : {endPoint}");
     }
 
-    // 이동 패킷 ( (3,2)좌표로 이동하고 싶다! )
-    // 15 3 2   
-    public override int OnRecv(ArraySegment<byte> buffer)
-    {
-        string recvData = Encoding.UTF8.GetString(buffer.Array, buffer.Offset, buffer.Count);
-        Console.WriteLine($" [From Client] : {recvData} ");
-
-        return buffer.Count;
-    }
-
+    
     public override void OnSend(int numOfBytes)
     {
         Console.WriteLine($"Transfferd bytes : {numOfBytes}");
