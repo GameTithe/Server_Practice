@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
+
 class GameSession : Session
 {
     public override void OnConnected(EndPoint endPoint)
@@ -15,7 +16,6 @@ class GameSession : Session
             byte[] sendBuff = Encoding.UTF8.GetBytes($"HelloWorld {i}");
             Send(sendBuff);
         }
-
     }
 
     public override void OnDisconnected(EndPoint endPoint)
@@ -23,11 +23,12 @@ class GameSession : Session
         Console.WriteLine($"OnDisconnecrted : {endPoint}");
     }
 
-    public override void OnRecv(ArraySegment<byte> buffer)
+    public override int OnRecv(ArraySegment<byte> buffer)
     {
         string recvData = Encoding.UTF8.GetString(buffer.Array, buffer.Offset, buffer.Count);
         Console.WriteLine($" [From Server] : {recvData} ");
 
+        return buffer.Count;
     }
 
     public override void OnSend(int numOfBytes)
