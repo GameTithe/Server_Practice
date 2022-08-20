@@ -34,7 +34,7 @@ namespace DummyClient
         PlayerInfoOk = 2,
     }
     class ServerSession : Session
-    {
+    { 
         public override void OnConnected(EndPoint endPoint)
         {
             Console.WriteLine($"OnConnected : {endPoint}");
@@ -46,23 +46,24 @@ namespace DummyClient
             {
                 ArraySegment<byte> s = SendBufferHelper.Open(4096);
 
-                byte[] size = BitConverter.GetBytes(packet.size); // 2
-                byte[] packetId = BitConverter.GetBytes(packet.packetId); // 2
-                byte[] playerId = BitConverter.GetBytes(packet.playerId);  // 8
-
+                bool success = true;
                 ushort count = 0;
-                Array.Copy(size, 0, s.Array, s.Offset + count, 2);
+
+                //success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset, s.Count), packet.size);
                 count += 2;
 
-                Array.Copy(packetId, 0, s.Array, s.Offset + count, 2);
+                success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset + count, s.Count - count), packet.packetId);
                 count += 2;
-                
-                Array.Copy(playerId, 0, s.Array, s.Offset + count, 8);
+
+                success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset + count, s.Count- count), packet.playerId);
                 count += 8;
+                
+                success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset, s.Count), count);
+
 
                 ArraySegment<byte> sendBuff = SendBufferHelper.Close(count);
-
-                Send(sendBuff);
+                if(success)
+                    Send(sendBuff);
             }
         }
 
