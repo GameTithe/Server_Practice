@@ -1,0 +1,5 @@
+C:\Users\HP\Desktop\루키스\게임서버\C#\Server\PacketGenerator\bin\Debug\PacketGenerator.csproj.AssemblyReference.cache
+C:\Users\HP\Desktop\루키스\게임서버\C#\Server\PacketGenerator\bin\Debug\PacketGenerator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\HP\Desktop\루키스\게임서버\C#\Server\PacketGenerator\bin\Debug\PacketGenerator.AssemblyInfoInputs.cache
+C:\Users\HP\Desktop\루키스\게임서버\C#\Server\PacketGenerator\bin\Debug\PacketGenerator.AssemblyInfo.cs
+C:\Users\HP\Desktop\루키스\게임서버\C#\Server\PacketGenerator\bin\Debug\PacketGenerator.csproj.CoreCompileInputs.cache
