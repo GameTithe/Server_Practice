@@ -7,7 +7,7 @@ namespace ServerCore
     class Program
     {
         static Listener _listener = new Listener();
-
+    
         static void onAcceptHandler(Socket clientSocket)
         {
             try
@@ -39,7 +39,6 @@ namespace ServerCore
             IPAddress ipAdr = ipHost.AddressList[0];
             IPEndPoint endPoint = new IPEndPoint(ipAdr, 7777);
 
-
             _listener.Init(endPoint, onAcceptHandler);
             Console.WriteLine("Listening...");
 
@@ -47,6 +46,10 @@ namespace ServerCore
             {
                 ;
             }
+
+
+
+
 
 
         }

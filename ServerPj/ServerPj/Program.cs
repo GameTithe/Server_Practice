@@ -13,39 +13,33 @@ namespace DummyClient
             IPAddress ipAdr = ipHost.AddressList[0];
             IPEndPoint endPoint = new IPEndPoint(ipAdr, 7777);
 
-            while (true)
+            Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            try
             {
-                Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-             
-                try
-                {
-                    socket.Connect(endPoint);
+                socket.Connect(endPoint);
 
-                    //보낸다
-                    byte[] sendBuff = Encoding.UTF8.GetBytes("Hello World");
-                    socket.Send(sendBuff);
+                //보낸다
+                byte[] sendBuff = Encoding.UTF8.GetBytes("Hello World");
+                socket.Send(sendBuff);
 
-                    //받는다
-                    byte[] recvBuff = new byte[1024];
-                    int recvLen = socket.Receive(recvBuff);
+                //받는다
+                byte[] recvBuff = new byte[1024];
+                int recvLen = socket.Receive(recvBuff);
 
-                    string recvData = Encoding.UTF8.GetString(recvBuff, 0, recvLen);
-                    Console.WriteLine($"[From Server] : {recvData}");
+                string recvData = Encoding.UTF8.GetString(recvBuff, 0, recvLen);
+                Console.WriteLine($"[From Server] : {recvData}");
 
 
-                    //끊는다
-                    socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
+                //끊는다
+                //socket.Shutdown(SocketShutdown.Both);
+                //socket.Close();
 
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                }
-
-                Thread.Sleep(100);
             }
-
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
     }
 }

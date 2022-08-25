@@ -32,16 +32,16 @@ namespace ServerCore
         {
             args.AcceptSocket = null;
             bool pending = _listenSocket.AcceptAsync(args);
-            
-            if(pending == false)
+
+            if (pending == false)
             {
-                OnAcceptCompleted(null ,args);
+                OnAcceptCompleted(null, args);
             }
         }
 
-        void OnAcceptCompleted(object sender, SocketAsyncEventArgs args )
+        void OnAcceptCompleted(object sender, SocketAsyncEventArgs args)
         {
-            if(args.SocketError == SocketError.Success)
+            if (args.SocketError == SocketError.Success)
             {
                 //TODO
                 _onAcceptHandler.Invoke(args.AcceptSocket);
@@ -54,11 +54,8 @@ namespace ServerCore
             RegisterAccept(args);
         }
 
-        public Socket Accept()
-        {
-            return _listenSocket.Accept();
-        }
-    }
 
+
+    }
 
 }
