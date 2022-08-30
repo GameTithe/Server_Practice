@@ -12,19 +12,17 @@ namespace ServerCore
         {
             try
             {
-                // 받는다
-                byte[] recvBuff = new byte[1024];
-                int recvBytes = clientSocket.Receive(recvBuff);
-                string recvData = Encoding.UTF8.GetString(recvBuff, 0, recvBytes);
-                Console.WriteLine($"From Client : {recvData}");
+                Session session = new Session();
+                session.Start(clientSocket);
 
-                // 보낸다
                 byte[] sendBuff = Encoding.UTF8.GetBytes($"Welecom To MMO Server");
-                clientSocket.Send(sendBuff);
 
-                // 쫓아낸다
-                clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                session.Send(sendBuff);
+
+                Thread.Sleep(1000);
+
+                session.Disconnect();
+                session.Disconnect();
             }
             catch (Exception e)
             {
@@ -46,12 +44,6 @@ namespace ServerCore
             {
                 ;
             }
-
-
-
-
-
-
         }
     }
 }

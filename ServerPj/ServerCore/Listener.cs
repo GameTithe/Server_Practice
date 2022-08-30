@@ -24,9 +24,11 @@ namespace ServerCore
 
             SocketAsyncEventArgs args = new SocketAsyncEventArgs();
             args.Completed += new EventHandler<SocketAsyncEventArgs>(OnAcceptCompleted);
-
+                
             RegisterAccept(args);
-        }
+                
+            
+        }   
 
         void RegisterAccept(SocketAsyncEventArgs args)
         {

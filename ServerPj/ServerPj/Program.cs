@@ -13,33 +13,39 @@ namespace DummyClient
             IPAddress ipAdr = ipHost.AddressList[0];
             IPEndPoint endPoint = new IPEndPoint(ipAdr, 7777);
 
-            Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            try
+            while (true)
             {
-                socket.Connect(endPoint);
+                Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-                //보낸다
-                byte[] sendBuff = Encoding.UTF8.GetBytes("Hello World");
-                socket.Send(sendBuff);
+                try
+                {
+                    socket.Connect(endPoint);
 
-                //받는다
-                byte[] recvBuff = new byte[1024];
-                int recvLen = socket.Receive(recvBuff);
+                    //보낸다
+                    for (int i = 0; i < 5; i++)
+                    {
+                        byte[] sendBuff = Encoding.UTF8.GetBytes($"Hello World! {i} ");
+                        int sendBytes = socket.Send(sendBuff);
+                    }
+                    //받는다
+                    byte[] recvBuff = new byte[1024];
+                    int recvLen = socket.Receive(recvBuff);
 
-                string recvData = Encoding.UTF8.GetString(recvBuff, 0, recvLen);
-                Console.WriteLine($"[From Server] : {recvData}");
+                    string recvData = Encoding.UTF8.GetString(recvBuff, 0, recvLen);
+                    Console.WriteLine($"[From Server] : {recvData}");
 
 
-                //끊는다
-                //socket.Shutdown(SocketShutdown.Both);
-                //socket.Close();
+                    //끊는다
+                    //socket.Shutdown(SocketShutdown.Both);
+                    //socket.Close();
 
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+
         }
     }
 }
