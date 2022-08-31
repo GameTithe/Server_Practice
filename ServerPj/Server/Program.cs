@@ -22,10 +22,13 @@ namespace ServerCore
             Console.WriteLine($"OnDisConnected : {endPoint}");
         }
 
-        public override void OnRecv(ArraySegment<byte> buffer)
+        public override int OnRecv(ArraySegment<byte> buffer)
         {
             string recvData = Encoding.UTF8.GetString(buffer.Array, 0, buffer.Count);
             Console.WriteLine($"[From Client] {recvData}");
+
+            return buffer.Count;
+
         }
 
         public override void OnSend(int numOfBytes)

@@ -22,6 +22,7 @@ namespace ServerCore
             args.RemoteEndPoint = endPoint;
 
             args.UserToken = socket;
+           
             RegisterConnect(args);
         }
 
@@ -44,8 +45,8 @@ namespace ServerCore
             if(args.SocketError == SocketError.Success)
             {
                 Session session = _sessionFactory.Invoke();
+                
                 session.Start(args.ConnectSocket);
-
                 session.OnConnected(args.RemoteEndPoint); 
             }
             else
