@@ -27,6 +27,7 @@ namespace DummyClient
         public override int OnRecv(ArraySegment<byte> buffer)
         {
             string recvData = Encoding.UTF8.GetString(buffer.Array, 0, buffer.Count);
+
             Console.WriteLine($"[From Server] {recvData}");
 
             return buffer.Count;
