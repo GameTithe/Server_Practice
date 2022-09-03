@@ -21,37 +21,39 @@ namespace ServerCore
                 CurrentBuffer.Value = new SendBuffer(ChunkSize);
 
             return CurrentBuffer.Value.Open(reserveSize);
-
         }
+
         public static ArraySegment<byte> Close(int usedSize)
         {
             return CurrentBuffer.Value.Close(usedSize);
         }
+
     }
 
     public class SendBuffer
     {
-        // [u][][][][][][][][][][][]
         byte[] _buffer;
         int _usedSize = 0;
-    
-        public int FreeSize { get { return _buffer.Length - _usedSize; } }
+        
+        public int FreeSize { get { return _buffer.Length - -_usedSize; } }
 
-        public SendBuffer(int chunkSize)
+        public SendBuffer(int ChunkSize)
         {
-            _buffer = new byte[chunkSize];
+            _buffer = new byte[ChunkSize];
         }
-
         public ArraySegment<byte> Open(int reserveSize)
         {
             if (reserveSize > FreeSize)
                 return null;
-
-            return new ArraySegment<byte>(_buffer, _usedSize, reserveSize); 
+            
+            return new ArraySegment<byte>(_buffer, _usedSize, reserveSize);
         }
 
         public ArraySegment<byte> Close(int usedSize)
         {
+            if (_usedSize  + usedSize > _buffer.Length)
+                return null;
+
             ArraySegment<byte> segment = new ArraySegment<byte>(_buffer, _usedSize, usedSize);
             _usedSize += usedSize;
 
