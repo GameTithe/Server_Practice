@@ -7,7 +7,7 @@ namespace DummyClient
 {
     public abstract class Packet
     {
-        public ushort size;
+        public ushort size;  
         public ushort packetId;
 
         public abstract ArraySegment<byte> Write();
@@ -22,6 +22,7 @@ namespace DummyClient
         {
             this.packetId = (ushort)PacketID.PlayerInfoReq;
         }
+
         public override void Read(ArraySegment<byte> s)
         {
             ushort count = 0;
@@ -32,7 +33,7 @@ namespace DummyClient
             //ushort id = BitConverter.ToUInt16(s.Array, s.Offset + count);
             count += 2;
 
-            this.playerId = BitConverter.ToInt64(s.Array, s.Offset + count);
+            this.playerId = BitConverter.ToInt64(new ReadOnlySpan<byte>(s.Array, s.Offset + count, s.Count - count));
             count += 8;
             Console.WriteLine($"PlayerInfoReq : {playerId}");
 
@@ -41,20 +42,20 @@ namespace DummyClient
         {
             ArraySegment<byte> s = SendBufferHelper.Open(4096);
 
-
             ushort count = 0;
             bool success = true;
 
             //success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset, s.Count),packet.size);
             count += 2;
 
-            success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset + count, s.Count - count), this.packetId);
-            count += 2;
+            success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset + count, s.Count - count), (ushort)PacketID.PlayerInfoReq);
+            count += 2;  
 
             success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset + count, s.Count - count), this.playerId);
             count += 8;
 
             success &= BitConverter.TryWriteBytes(new Span<byte>(s.Array, s.Offset, s.Count), count);
+
 
             if (success == false)
                 return null;

@@ -24,6 +24,7 @@ namespace Server
         }
         public override void Read(ArraySegment<byte> s)
         {
+           
             ushort count = 0;
 
             //ushort size = BitConverter.ToUInt16(s.Array, s.Offset);
@@ -32,8 +33,9 @@ namespace Server
             //ushort id = BitConverter.ToUInt16(s.Array, s.Offset + count);
             count += 2;
 
-            this.playerId = BitConverter.ToInt64(s.Array, s.Offset + count);
+            this.playerId = BitConverter.ToInt64(new ReadOnlySpan<byte>(s.Array, s.Offset + count, s.Count - count));
             count += 8;
+
             Console.WriteLine($"PlayerInfoReq : {playerId}");
 
         }
