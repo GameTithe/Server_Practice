@@ -1,30 +1,11 @@
 {
   "version": 3,
   "targets": {
-    "net6.0": {
-      "ServerCore/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v6.0",
-        "compile": {
-          "bin/placeholder/ServerCore.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/ServerCore.dll": {}
-        }
-      }
-    }
+    "net6.0": {}
   },
-  "libraries": {
-    "ServerCore/1.0.0": {
-      "type": "project",
-      "path": "../ServerCore/ServerCore.csproj",
-      "msbuildProject": "../ServerCore/ServerCore.csproj"
-    }
-  },
+  "libraries": {},
   "projectFileDependencyGroups": {
-    "net6.0": [
-      "ServerCore >= 1.0.0"
-    ]
+    "net6.0": []
   },
   "packageFolders": {
     "C:\\Users\\HP\\.nuget\\packages\\": {}
@@ -52,11 +33,7 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
-          "projectReferences": {
-            "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\ServerCore\\ServerCore.csproj": {
-              "projectPath": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\ServerCore\\ServerCore.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {

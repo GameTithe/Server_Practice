@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gO26gzmH4nYsICZoQJf+9H18TghhdJYJ2mClvJxjfS6pTqkBawefr7SlzP2Kt+FpOpKAPd5BFcIRD0KqThXlhg==",
+  "dgSpecHash": "no5w8Ajb5dWblkARN3E/6tpQqa/VaPg+V4YPKiM6upeXpW83uhzzCDhKhDgwMG5EBCGtUhCklnOUhRgW+QXD3g==",
   "success": true,
-  "projectFilePath": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\ServerPj\\DummyClient.csproj",
+  "projectFilePath": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\ServerPj\\ServerPj.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

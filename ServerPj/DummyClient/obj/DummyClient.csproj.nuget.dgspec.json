@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\Server\\Server.csproj": {}
+    "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\DummyClient\\DummyClient.csproj": {}
   },
   "projects": {
-    "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\Server\\Server.csproj": {
+    "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\DummyClient\\DummyClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\Server\\Server.csproj",
-        "projectName": "Server",
-        "projectPath": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\Server\\Server.csproj",
+        "projectUniqueName": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\DummyClient\\DummyClient.csproj",
+        "projectName": "DummyClient",
+        "projectPath": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\DummyClient\\DummyClient.csproj",
         "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\Server\\obj\\",
+        "outputPath": "C:\\Users\\HP\\Desktop\\루키스\\게임서버\\C#\\Server\\ServerPj\\DummyClient\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
