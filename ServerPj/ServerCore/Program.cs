@@ -6,25 +6,21 @@ namespace ServerCore
 {
     class Program
     {
-        static Listener _socket = new Listener();
+        static Listener _listener = new Listener();
+        static Session _session = new Session();
 
-        static void OnAcceptHandler(Socket socket)
+        static void OnAcceptHandler(Socket clientSocket)
         {
             try
             {
-                //받기
-                byte[] recvBuff = new byte[1024];
-                int recvLen = socket.Receive(recvBuff);
-                string recvBytes = Encoding.UTF8.GetString(recvBuff, 0, recvLen);
-                Console.WriteLine($"[From Client] : {recvBytes}");
+                _session.Init(clientSocket);
 
                 //보내기
-                byte[] sendBuff = Encoding.UTF8.GetBytes($"Welcome Server");
-                socket.Send(sendBuff);
+                _session.Send(Encoding.UTF8.GetBytes($"Welcome Server"));
 
                 //끝내기
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                _session.Disconnect();
+
             }
             catch(Exception e)
             {
@@ -43,8 +39,8 @@ namespace ServerCore
             
             Console.WriteLine("Listening....");
 
-            _socket.Init(endPoint, OnAcceptHandler);
-         
+            _listener.Init(endPoint, OnAcceptHandler);
+            
             while(true)
             {
                 ;
