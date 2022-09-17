@@ -7,18 +7,21 @@ namespace ServerCore
     class Program
     {
         static Listener _listener = new Listener();
-        static Session _session = new Session();
-
+        
         static void OnAcceptHandler(Socket clientSocket)
         {
             try
             {
+                Session _session = new Session();
+
                 _session.Init(clientSocket);
 
                 //보내기
                 _session.Send(Encoding.UTF8.GetBytes($"Welcome Server"));
 
+                Thread.Sleep(1000); 
                 //끝내기
+                _session.Disconnect();
                 _session.Disconnect();
 
             }
