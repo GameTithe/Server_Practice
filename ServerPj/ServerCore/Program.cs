@@ -17,10 +17,12 @@ namespace ServerCore
                 _session.Init(clientSocket);
 
                 //보내기
-                _session.Send(Encoding.UTF8.GetBytes($"Welcome Server"));
+                byte[] sendBuffer = Encoding.UTF8.GetBytes($"Welcome Server!");
+                _session.Send(sendBuffer);
 
                 Thread.Sleep(1000); 
                 //끝내기
+
                 _session.Disconnect();
                 _session.Disconnect();
 

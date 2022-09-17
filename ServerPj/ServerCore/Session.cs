@@ -10,25 +10,41 @@ namespace ServerCore
     class Session
     {
         Socket _socket;
+
+        SocketAsyncEventArgs sendArgs = new SocketAsyncEventArgs();
+        Queue<byte[]> sendQueue = new Queue<byte[]>();
+
+
+        bool _pending = false;
+        object _lock = new object();
         int _disconnected = 0;
 
         public void Init(Socket socket)
         {
             _socket = socket;
 
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-            args.Completed += OnCompleteRecv;
+            SocketAsyncEventArgs recvArgs = new SocketAsyncEventArgs();
+            recvArgs.Completed += OnRecvComplete;
 
-            args.SetBuffer(new byte[1024], 0, 1024);
+            sendArgs.Completed += OnSendComplete;
+
+            recvArgs.SetBuffer(new byte[1024], 0, 1024);
             
-            RegisterRecv(args);
+            RegisterRecv(recvArgs);
         }
 
         public void Send(byte[] sendBuff)
         {
-            _socket.Send(sendBuff);
+            lock(_lock)
+            {
+                sendQueue.Enqueue(sendBuff);
+
+                if(_pending == false)
+                    RegisterSend();
+            }
         }
 
+       
         public void Disconnect()
         {
             if (Interlocked.Exchange(ref _disconnected, 1) == 1)
@@ -44,10 +60,10 @@ namespace ServerCore
         {
             bool pending = _socket.ReceiveAsync(args);
             if (pending == false)
-                OnCompleteRecv(null, args);
+                OnRecvComplete(null, args);
         }
 
-        void OnCompleteRecv(object sender, SocketAsyncEventArgs args)
+        void OnRecvComplete(object sender, SocketAsyncEventArgs args)
         {
             if (args.SocketError == SocketError.Success && args.BytesTransferred > 0)
             {
@@ -68,6 +84,37 @@ namespace ServerCore
                 //Disconnect();
             }
         }
+
+
+        void RegisterSend()
+        {
+            _pending = true;
+
+            byte[] sendBuffer = sendQueue.Dequeue();
+            sendArgs.SetBuffer(sendBuffer, 0, sendBuffer.Length);
+
+            bool pending = _socket.SendAsync(sendArgs);
+            if (pending == false)
+                OnSendComplete(null, sendArgs);
+
+        }
+        
+        void OnSendComplete(object send , SocketAsyncEventArgs args)
+        {
+            if(args.SocketError == SocketError.Success && args.BytesTransferred > 0)
+            {
+                if (sendQueue.Count > 0)
+                    RegisterSend();
+                else
+                    _pending = false;
+            }
+            else
+            {
+                Disconnect();
+            }
+        }
+
+
         #endregion
     }
 }
