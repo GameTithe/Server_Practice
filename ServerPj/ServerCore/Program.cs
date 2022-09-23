@@ -4,34 +4,44 @@ using System.Text;
 
 namespace ServerCore
 {
+    class GameSession : Session
+    {
+        public override void OnConnect(EndPoint endPoint)
+        {
+            Console.WriteLine($"OnConnected {endPoint}");
+
+            //보내기
+            byte[] sendBuffer = Encoding.UTF8.GetBytes($"Welcome Server!");
+            Send(sendBuffer);
+
+            Thread.Sleep(1000);
+
+            //끝내기
+            Disconnect();
+            Disconnect();
+        }
+
+        public override void OnDisconnected(EndPoint endPoint)
+        {
+            Console.WriteLine($"Disconnected : {endPoint}");
+        }
+
+        public override void OnRecv(ArraySegment<byte> recvBuff)
+        {
+            string recvBytes = Encoding.UTF8.GetString(recvBuff.Array, recvBuff.Offset, recvBuff.Count);
+            Console.WriteLine($"[From Client] : {recvBytes}");
+
+        }
+
+        public override void OnSend(int numOfBytes)
+        {
+            Console.WriteLine($"Trasnffered: {numOfBytes}");
+        }
+
+    }
     class Program
     {
         static Listener _listener = new Listener();
-        
-        static void OnAcceptHandler(Socket clientSocket)
-        {
-            try
-            {
-                Session _session = new Session();
-
-                _session.Start(clientSocket);
-
-                //보내기
-                byte[] sendBuffer = Encoding.UTF8.GetBytes($"Welcome Server!");
-                _session.Send(sendBuffer);
-
-                Thread.Sleep(1000); 
-                //끝내기
-
-                _session.Disconnect();
-                _session.Disconnect();
-
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine($"Handler Error : {e.ToString()}");
-            }
-        }
 
         static void Main(string[] args)
         {
@@ -44,7 +54,7 @@ namespace ServerCore
             
             Console.WriteLine("Listening....");
 
-            _listener.Init(endPoint, OnAcceptHandler);
+            _listener.Init(endPoint, () => { return new GameSession(); });
             
             while(true)
             {

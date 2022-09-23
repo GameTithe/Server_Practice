@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ServerCore
 {
-    class Session
+    abstract class Session
     {
         Socket _socket;
 
@@ -22,10 +23,16 @@ namespace ServerCore
         object _lock = new object();
         int _disconnected = 0;
 
+        
+        public abstract void OnConnect(EndPoint endPoint);
+        public abstract void OnRecv(ArraySegment<byte> buffer);
+        public abstract void OnSend(int numOfBytes);
+        public abstract void OnDisconnected(EndPoint endPoint);
+        
+
         public void Start(Socket socket)
         {
             _socket = socket;
-
 
             _recvArgs.Completed += OnRecvComplete;
             _sendArgs.Completed += OnSendComplete;
@@ -50,7 +57,9 @@ namespace ServerCore
         public void Disconnect()
         {
             if (Interlocked.Exchange(ref _disconnected, 1) == 1)
-                return; 
+                return;
+
+           OnDisconnected(_socket.RemoteEndPoint);
 
             _socket.Shutdown(SocketShutdown.Both);
             _socket.Close();
@@ -71,22 +80,20 @@ namespace ServerCore
             {
                 try
                 {
-                    string recvBytes = Encoding.UTF8.GetString(args.Buffer, args.Offset, args.BytesTransferred);
-                    Console.WriteLine($"[From Client] : {recvBytes}");
-                    //RegisterRecv(args);
+                    OnRecv(new ArraySegment<byte>(args.Buffer, args.Offset, args.BytesTransferred));
+
+                    RegisterRecv();
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine($"Onecv Error : {e.ToString}");
+                    Console.WriteLine($"OnRecv Error : {e.ToString}");
                 }
             }
             else
             {
                 Disconnect();
-
             }
         }
-
 
         void RegisterSend()
         {
@@ -113,7 +120,7 @@ namespace ServerCore
                 _sendArgs.BufferList = null;
                 _pendingList.Clear();
 
-                Console.WriteLine($"Trasnffered: {_sendArgs.BytesTransferred}");
+                OnSend(_sendArgs.BytesTransferred);
 
                 if (_sendQueue.Count > 0)
                     RegisterSend();
