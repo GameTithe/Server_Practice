@@ -11,35 +11,37 @@ namespace ServerCore
     {
         Socket _socket;
 
-        SocketAsyncEventArgs sendArgs = new SocketAsyncEventArgs();
-        Queue<byte[]> sendQueue = new Queue<byte[]>();
+        SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
+        SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
+
+        List<ArraySegment<byte>> _pendingList = new List<ArraySegment<byte>>();
+
+        Queue<byte[]> _sendQueue = new Queue<byte[]>();
 
 
-        bool _pending = false;
         object _lock = new object();
         int _disconnected = 0;
 
-        public void Init(Socket socket)
+        public void Start(Socket socket)
         {
             _socket = socket;
 
-            SocketAsyncEventArgs recvArgs = new SocketAsyncEventArgs();
-            recvArgs.Completed += OnRecvComplete;
 
-            sendArgs.Completed += OnSendComplete;
+            _recvArgs.Completed += OnRecvComplete;
+            _sendArgs.Completed += OnSendComplete;
 
-            recvArgs.SetBuffer(new byte[1024], 0, 1024);
-            
-            RegisterRecv(recvArgs);
+            _recvArgs.SetBuffer(new byte[1024], 0, 1024);
+             
+            RegisterRecv();
         }
 
         public void Send(byte[] sendBuff)
         {
             lock(_lock)
             {
-                sendQueue.Enqueue(sendBuff);
+                _sendQueue.Enqueue(sendBuff);
 
-                if(_pending == false)
+                if(_pendingList.Count == 0)
                     RegisterSend();
             }
         }
@@ -48,7 +50,7 @@ namespace ServerCore
         public void Disconnect()
         {
             if (Interlocked.Exchange(ref _disconnected, 1) == 1)
-                return;
+                return; 
 
             _socket.Shutdown(SocketShutdown.Both);
             _socket.Close();
@@ -56,11 +58,11 @@ namespace ServerCore
         }
         #region 네트워크 통신
 
-        void RegisterRecv(SocketAsyncEventArgs args)
+        void RegisterRecv()
         {
-            bool pending = _socket.ReceiveAsync(args);
+            bool pending = _socket.ReceiveAsync(_recvArgs);
             if (pending == false)
-                OnRecvComplete(null, args);
+                OnRecvComplete(null, _recvArgs);
         }
 
         void OnRecvComplete(object sender, SocketAsyncEventArgs args)
@@ -80,22 +82,27 @@ namespace ServerCore
             }
             else
             {
-                //여기에 들어와 질 때가 있다>?? => Disconnet할 때
-                //Disconnect();
+                Disconnect();
+
             }
         }
 
 
         void RegisterSend()
         {
-            _pending = true;
+            _sendArgs.BufferList = null;
 
-            byte[] sendBuffer = sendQueue.Dequeue();
-            sendArgs.SetBuffer(sendBuffer, 0, sendBuffer.Length);
+            while (_sendQueue.Count > 0)
+            {
+                byte[] buffer = _sendQueue.Dequeue();
+                _pendingList.Add(new ArraySegment<byte>(buffer, 0 , buffer.Length));   
+            }
 
-            bool pending = _socket.SendAsync(sendArgs);
+            _sendArgs.BufferList = _pendingList;
+            
+            bool pending = _socket.SendAsync(_sendArgs);
             if (pending == false)
-                OnSendComplete(null, sendArgs);
+                OnSendComplete(null, _sendArgs);
 
         }
         
@@ -103,10 +110,13 @@ namespace ServerCore
         {
             if(args.SocketError == SocketError.Success && args.BytesTransferred > 0)
             {
-                if (sendQueue.Count > 0)
+                _sendArgs.BufferList = null;
+                _pendingList.Clear();
+
+                Console.WriteLine($"Trasnffered: {_sendArgs.BytesTransferred}");
+
+                if (_sendQueue.Count > 0)
                     RegisterSend();
-                else
-                    _pending = false;
             }
             else
             {

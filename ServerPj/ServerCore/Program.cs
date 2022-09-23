@@ -14,7 +14,7 @@ namespace ServerCore
             {
                 Session _session = new Session();
 
-                _session.Init(clientSocket);
+                _session.Start(clientSocket);
 
                 //보내기
                 byte[] sendBuffer = Encoding.UTF8.GetBytes($"Welcome Server!");
