@@ -19,7 +19,7 @@ namespace DummyClient
             }
 
             Thread.Sleep(1000);
-
+           
             //끝내기
             Disconnect();
             Disconnect();

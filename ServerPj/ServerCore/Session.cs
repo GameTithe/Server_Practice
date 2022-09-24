@@ -15,6 +15,9 @@ namespace ServerCore
         SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
         SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
 
+        RecvBuffer _recvBuffer = new RecvBuffer(1024);
+
+
         List<ArraySegment<byte>> _pendingList = new List<ArraySegment<byte>>();
 
         Queue<byte[]> _sendQueue = new Queue<byte[]>();
@@ -37,8 +40,6 @@ namespace ServerCore
             _recvArgs.Completed += OnRecvComplete;
             _sendArgs.Completed += OnSendComplete;
 
-            _recvArgs.SetBuffer(new byte[1024], 0, 1024);
-             
             RegisterRecv();
         }
 
@@ -59,7 +60,7 @@ namespace ServerCore
             if (Interlocked.Exchange(ref _disconnected, 1) == 1)
                 return;
 
-           OnDisconnected(_socket.RemoteEndPoint);
+            OnDisconnected(_socket.RemoteEndPoint);
 
             _socket.Shutdown(SocketShutdown.Both);
             _socket.Close();
