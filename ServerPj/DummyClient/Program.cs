@@ -30,10 +30,12 @@ namespace DummyClient
             Console.WriteLine($"Disconnected : {endPoint}");
         }
 
-        public override void OnRecv(ArraySegment<byte> recvBuff)
+        public override int OnRecv(ArraySegment<byte> recvBuff)
         {
             string recvBytes = Encoding.UTF8.GetString(recvBuff.Array, recvBuff.Offset, recvBuff.Count);
             Console.WriteLine($"[From Server] : {recvBytes}");
+
+            return recvBuff.Count;
         }
 
         public override void OnSend(int numOfBytes)

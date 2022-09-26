@@ -28,7 +28,7 @@ namespace ServerCore
 
         
         public abstract void OnConnect(EndPoint endPoint);
-        public abstract void OnRecv(ArraySegment<byte> buffer);
+        public abstract int OnRecv(ArraySegment<byte> buffer);
         public abstract void OnSend(int numOfBytes);
         public abstract void OnDisconnected(EndPoint endPoint);
         
@@ -70,9 +70,24 @@ namespace ServerCore
 
         void RegisterRecv()
         {
+            _recvBuffer.Clean();
+
+            ArraySegment<byte> buffer = _recvBuffer.WriteSegment;
+            _recvArgs.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);
+
             bool pending = _socket.ReceiveAsync(_recvArgs);
             if (pending == false)
                 OnRecvComplete(null, _recvArgs);
+
+
+        //    _recvBuffer.Clean();
+
+        //    ArraySegment<byte> segment = _recvBuffer.WriteSegment;
+        //    _recvArgs.SetBuffer(segment.Array, segment.Offset, segment.Count);
+
+        //    bool pending = _socket.ReceiveAsync(_recvArgs);
+        //    if (pending == false)
+        //        OnRecvComplete(null, _recvArgs);
         }
 
         void OnRecvComplete(object sender, SocketAsyncEventArgs args)
@@ -81,11 +96,32 @@ namespace ServerCore
             {
                 try
                 {
-                    OnRecv(new ArraySegment<byte>(args.Buffer, args.Offset, args.BytesTransferred));
+                    //Wrtie 커서 이동
+                    if (_recvBuffer.OnWrite(args.BytesTransferred) == false)
+                    {
+                        Disconnect();
+                        return;
+
+                    }
+
+                    //컨텐츠 쪽으로 데이터를 넘겨주고 얼마나 처리했는지 받는다
+                    int processLen = OnRecv(_recvBuffer.ReadSegment);
+                    if (processLen < 0 || processLen < _recvBuffer.DataSize)
+                    {
+                        Disconnect();
+                        return;
+                    }
+
+                    if (_recvBuffer.OnRead(processLen) == false)
+                    {
+                        Disconnect();
+                        return;
+                    }
+
 
                     RegisterRecv();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine($"OnRecv Error : {e.ToString}");
                 }
