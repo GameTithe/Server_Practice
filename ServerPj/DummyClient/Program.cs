@@ -33,7 +33,11 @@ namespace DummyClient
         public override int OnRecv(ArraySegment<byte> recvBuff)
         {
             string recvBytes = Encoding.UTF8.GetString(recvBuff.Array, recvBuff.Offset, recvBuff.Count);
-            Console.WriteLine($"[From Server] : {recvBytes}");
+
+            string hp = Encoding.UTF8.GetString(recvBuff.Array, recvBuff.Offset, 4);
+            string attack = Encoding.UTF8.GetString(recvBuff.Array, recvBuff.Offset + 4, 4);
+
+            Console.WriteLine($"[From Server] : Knight Hp : {hp} , Knight Attack : {attack}");
 
             return recvBuff.Count;
         }

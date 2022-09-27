@@ -5,20 +5,34 @@ using ServerCore;
 
 namespace Server
 {
+    class Knight
+    {
+        public int hp;
+        public int attack;
+        public string name;
+        public List<int> skills = new List<int>();
+    }
+
     class GameSession : Session
     {
         public override void OnConnect(EndPoint endPoint)
         {
             Console.WriteLine($"OnConnected {endPoint}");
 
-            //보내기
-            byte[] sendBuffer = Encoding.UTF8.GetBytes($"Welcome Server!");
+            Knight knight = new Knight() { hp = 100, attack = 10 };
+
+            ArraySegment<byte> openSegment = SendBufferHelper.Open(1024);
+            
+            byte[] buffer1 = BitConverter.GetBytes(knight.hp);
+            byte[] buffer2 = BitConverter.GetBytes(knight.attack);
+
+            Array.Copy(buffer1, 0, openSegment.Array, openSegment.Offset, buffer1.Length);
+            Array.Copy(buffer2, 0, openSegment.Array, openSegment.Offset + buffer1.Length, buffer2.Length);
+
+            ArraySegment<byte> sendBuffer = SendBufferHelper.Close(buffer1.Length + buffer2.Length);
+            
             Send(sendBuffer);
-
             Thread.Sleep(1000);
-
-            //끝내기
-            Disconnect();
             Disconnect();
         }
 

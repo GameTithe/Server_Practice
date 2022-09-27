@@ -20,7 +20,7 @@ namespace ServerCore
 
         List<ArraySegment<byte>> _pendingList = new List<ArraySegment<byte>>();
 
-        Queue<byte[]> _sendQueue = new Queue<byte[]>();
+        Queue<ArraySegment<byte>> _sendQueue = new Queue<ArraySegment<byte>>();
 
 
         object _lock = new object();
@@ -43,7 +43,7 @@ namespace ServerCore
             RegisterRecv();
         }
 
-        public void Send(byte[] sendBuff)
+        public void Send(ArraySegment<byte> sendBuff)
         {
             lock(_lock)
             {
@@ -138,8 +138,8 @@ namespace ServerCore
 
             while (_sendQueue.Count > 0)
             {
-                byte[] buffer = _sendQueue.Dequeue();
-                _pendingList.Add(new ArraySegment<byte>(buffer, 0 , buffer.Length));   
+                ArraySegment<byte> buffer = _sendQueue.Dequeue();
+                _pendingList.Add(buffer);   
             }
 
             _sendArgs.BufferList = _pendingList;
