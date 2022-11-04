@@ -5,49 +5,6 @@ using System.Text;
 
 namespace DummyClient
 {
-    class GameSession : Session
-    {
-        public override void OnConnect(EndPoint endPoint)
-        {
-            Console.WriteLine($"OnConnected {endPoint}");
-
-            //보내기
-            for (int i = 0; i < 5; i++)
-            {
-                byte[] sendBuff = Encoding.UTF8.GetBytes($"Hello Server {i}");
-                Send(sendBuff);
-            }
-
-            Thread.Sleep(1000);
-           
-            //끝내기
-            Disconnect();
-            Disconnect();
-        }
-
-        public override void OnDisconnected(EndPoint endPoint)
-        {
-            Console.WriteLine($"Disconnected : {endPoint}");
-        }
-
-        public override int OnRecv(ArraySegment<byte> recvBuff)
-        {
-            string recvBytes = Encoding.UTF8.GetString(recvBuff.Array, recvBuff.Offset, recvBuff.Count);
-
-            string hp = Encoding.UTF8.GetString(recvBuff.Array, recvBuff.Offset, 4);
-            string attack = Encoding.UTF8.GetString(recvBuff.Array, recvBuff.Offset + 4, 4);
-
-            Console.WriteLine($"[From Server] : Knight Hp : {hp} , Knight Attack : {attack}");
-
-            return recvBuff.Count;
-        }
-
-        public override void OnSend(int numOfBytes)
-        {
-            Console.WriteLine($"Trasnffered: {numOfBytes}");
-        }
-    }
-
     class Program
     {
         static void Main(string[] args)
@@ -59,7 +16,7 @@ namespace DummyClient
 
             Connector connector = new Connector();
 
-            connector.Connect(endPoint, () => { return new GameSession(); });
+            connector.Connect(endPoint, () => { return new ServerSession(); });
            
             
             while (true)
